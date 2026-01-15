@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱心表白便签</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background-color: #fdf2f7;
+            cursor: pointer;
+            overflow: hidden;
+            position: relative;
+            transition: background-color 0.5s ease;
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #fdf2f7;
+            z-index: 100;
+            transition: opacity 0.8s ease;
+        }
+
+        .love-note {
+            position: absolute;
+            width: clamp(60px, 8vw, 120px);
+            height: clamp(60px, 8vw, 120px);
+            background-color: #f43f5e;
+            transform: rotate(45deg) scale(0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+            z-index: 10;
+        }
+
+        .love-note::before,
+        .love-note::after {
+            content: "";
+            position: absolute;
+            width: clamp(60px, 8vw, 120px);
+            height: clamp(60px, 8vw, 120px);
+            background-color: inherit;
+            border-radius: 50%;
+        }
+
+        .love-note::before {
+            top: calc(-1 * clamp(30px, 4vw, 60px));
+            left: 0;
+        }
+
+        .love-note::after {
+            top: 0;
+            left: calc(-1 * clamp(30px, 4vw, 60px));
+        }
+
+        .note-text {
+            position: relative;
+            z-index: 20;
+            font-family: 'Arial Rounded MT Bold', sans-serif;
+            font-size: clamp(10px, 1.8vw, 16px);
+            color: white;
+            text-align: center;
+            transform: rotate(-45deg);
+            width: clamp(50px, 6vw, 95px);
+            line-height: 1.2;
+            word-wrap: break-word;
+            padding: 2px;
+        }
+
+        .love-note.show {
+            opacity: 0.9;
+            transform: rotate(45deg) scale(1);
+        }
+
+        /* 不同颜色的爱心便签 */
+        .color-1 { background-color: #f43f5e; }
+        .color-2 { background-color: #ec4899; }
+        .color-3 { background-color: #8b5cf6; }
+        .color-4 { background-color: #ec4899; }
+        .color-5 { background-color: #f97316; }
+    </style>
+</head>
+<body>
+    <div class="start-screen">
+        <i class="fa fa-heart text-6xl text-pink-500 mb-6 animate-pulse"></i>
+        <h1 class="text-3xl md:text-4xl font-bold text-pink-700 mb-4">点击屏幕开始</h1>
+        <p class="text-pink-600 max-w-md text-center px-4">开启一场特别的表白，让爱意填满整个屏幕</p>
+    </div>
+
+    <script>
+        // 表白文案列表（150条）
+        const loveMessages = [
+            "我喜欢你，胜过一切",
+            "记得好好吃饭，别饿肚子",
+            "天气冷了，我好想见你",
+            "你一笑，我的世界都亮了",
+            "每天都在期待和你说话",
+            "你的存在，让一切都值得",
+            "想和你一起看遍所有风景",
+            "见不到你的时候，全是想念",
+            "你是我藏在心底的秘密",
+            "照顾好自己，我会担心的",
+            "喜欢你，是我做过最对的事",
+            "今天也有在偷偷想你呀",
+            "天冷了，记得多穿点衣服",
+            "和你在一起的时光最美好",
+            "你的眼睛里有星星",
+            "想把所有温柔都给你",
+            "别熬夜了，早点休息哦",
+            "想陪你走过每个春夏秋冬",
+            "看到好吃的，第一时间想到你",
+            "你就是我要找的那个人",
+            "不管多远，心都和你在一起",
+            "今天的风，都带着对你的思念",
+            "记得多喝水，保持好心情",
+            "喜欢你的一切，包括小缺点",
+            "想和你一起做很多很多事",
+            "天气变凉，注意保暖呀",
+            "我的心意，你感受到了吗",
+            "见到你，所有烦恼都消失了",
+            "你在我心里，很重要",
+            "记得按时吃饭，别亏待自己",
+            "我想每天都能见到你",
+            "你的声音，很动听",
+            "天冷了，手冷的话我帮你暖",
+            "喜欢你，没有为什么",
+            "记得好好照顾自己，我会想你",
+            "和你聊天，时间总是过得很快",
+            "你一笑，我就没辙了",
+            "天气冷了，多喝热水哦",
+            "我想和你有很多很多以后",
+            "看到美景，想第一时间分享给你",
+            "记得吃早餐，对身体好",
+            "你是我不期而遇的惊喜",
+            "天冷了，别感冒啦",
+            "我喜欢你，认真且坚定",
+            "记得多休息，别太累了",
+            "想牵着你的手，一直走下去",
+            "你的可爱，治愈了一切",
+            "天气冷了，抱抱你就暖和了",
+            "我想每天对你说晚安",
+            "你是我最想珍惜的人",
+            "想和你一起看日出日落",
+            "你的笑容，是我最美的风景",
+            "喜欢你，是一辈子的承诺",
+            "无论何时，我都等你",
+            "你的名字，是我最喜欢的词",
+            "想和你一起做顿饭",
+            "天气冷了，记得戴围巾",
+            "你的温柔，让我沉醉",
+            "每天醒来第一个想到的是你",
+            "想和你一起看星星",
+            "你是我的阳光",
+            "天凉了，记得多添衣",
+            "你的拥抱，是我最安心的港湾",
+            "想和你一起去旅行",
+            "你的笑，比蜜还甜",
+            "爱你，不问归期",
+            "你在我心里，无可替代",
+            "天气冷了，记得热饮",
+            "想和你一起度过每个节日",
+            "你的声音，是我最爱的旋律",
+            "喜欢你，从遇见你的那天起",
+            "想和你一起数星星",
+            "你是我的唯一",
+            "天冷了，记得戴手套",
+            "你的出现，是我最大的幸运",
+            "想和你一起看海",
+            "你的眼神，会说话",
+            "爱你，直到永远",
+            "你是我生命中最美的遇见",
+            "天气冷了，记得保暖",
+            "想和你一起追剧",
+            "你的手，很温暖",
+            "喜欢你，胜过爱自己",
+            "想和你一起散步",
+            "你的样子，我很喜欢",
+            "爱你，不问为什么",
+            "你是我心里最重要的人",
+            "天凉了，记得多穿",
+            "想和你一起看书",
+            "你的笑容，治愈我",
+            "喜欢你，不由自主",
+            "想和你一起听歌",
+            "你的名字，刻在我心里",
+            "爱你，没有理由",
+            "你是我最珍贵的礼物",
+            "天气冷了，注意身体",
+            "想和你一起看电影",
+            "你的声音，很温柔",
+            "喜欢你，无法停止",
+            "想和你一起玩游戏",
+            "你的照片，我珍藏",
+            "爱你，无条件",
+            "你是我梦里的主角",
+            "天冷了，记得喝热茶",
+            "想和你一起逛街",
+            "你的样子，很可爱",
+            "喜欢你，不由自主",
+            "想和你一起做甜品",
+            "你的眼睛，很漂亮",
+            "爱你，一生一世",
+            "你是我心中的唯一",
+            "天气冷了，注意保暖",
+            "想和你一起学习",
+            "你的笑容，很迷人",
+            "喜欢你，无法自拔",
+            "想和你一起运动",
+            "你的声音，很甜美",
+            "爱你，直到永远",
+            "你是我心尖上的人"
+        ];
+
+        const startScreen = document.querySelector('.start-screen');
+        const body = document.body;
+        let hasClicked = false;
+
+        // 点击事件处理
+        body.addEventListener('click', () => {
+            if (hasClicked) return;
+            hasClicked = true;
+
+            // 隐藏开始屏幕
+            startScreen.style.opacity = '0';
+            setTimeout(() => {
+                startScreen.style.display = 'none';
+            }, 800);
+
+            // 依次创建并显示爱心便签
+            loveMessages.forEach((message, index) => {
+                setTimeout(() => {
+                    createLoveNote(message);
+                }, index * 150); // 0.15秒间隔，更密集
+            });
+        });
+
+        // 创建爱心便签函数
+        function createLoveNote(message) {
+            // 创建元素
+            const note = document.createElement('div');
+            const text = document.createElement('div');
+
+            // 设置类名和内容
+            const colorClass = `color-${Math.floor(Math.random() * 5) + 1}`;
+            note.className = `love-note ${colorClass}`;
+            text.className = 'note-text';
+            text.textContent = message;
+
+            note.appendChild(text);
+            body.appendChild(note);
+
+            // 响应式尺寸计算
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const noteSize = Math.min(vw * 0.08, 120); // 屏幕宽度的8%，最大120px
+
+            // 确保便签完全显示在屏幕内
+            const maxX = vw - noteSize * 2;
+            const maxY = vh - noteSize * 2;
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
+
+            note.style.left = `${randomX}px`;
+            note.style.top = `${randomY}px`;
+
+            // 触发显示动画
+            setTimeout(() => {
+                note.classList.add('show');
+            }, 50);
+
+            // 添加轻微浮动效果
+            addFloatAnimation(note);
+        }
+
+        // 添加浮动动画
+        function addFloatAnimation(element) {
+            let angle = 0;
+            const originalTop = parseInt(element.style.top);
+            
+            setInterval(() => {
+                angle += 0.02;
+                const floatY = Math.sin(angle) * 8; // 上下浮动距离
+                element.style.top = `${originalTop + floatY}px`;
+            }, 50);
+        }
+    </script>
+</body>
+</html>
